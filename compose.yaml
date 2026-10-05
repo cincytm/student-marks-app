@@ -1,0 +1,31 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - student-net
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+    image: student-marks-app:1.0.0
+    container_name: student-app
+    environment:
+      MONGO_URI: mongodb://mongodb:27017
+    ports:
+      - "8501:8501"
+    depends_on:
+      - mongodb
+    networks:
+      - student-net
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  student-net:
+    driver: bridge
