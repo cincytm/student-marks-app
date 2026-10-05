@@ -1,0 +1,56 @@
+name: Docker DevSecOps Pipeline
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+  security-events: write
+env:
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/student-marks-app
+jobs:
+  security-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: KICS scan
+        uses: checkmarx/kics-github-action@v2.1.16
+        with:
+          path: .
+          output_path: kics-results
+          output_formats: "json,sarif"
+          fail_on: high
+      - name: SonarQube/SonarCloud scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Set image tags
+        id: vars
+        shell: bash
+        run: |
+          echo "sha_tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - name: Build image
+        run: |
+          docker build             -t "$IMAGE_NAME:${{ steps.vars.outputs.sha_tag }}"             -t "$IMAGE_NAME:latest" .
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_tag }}'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+      - name: Docker Hub login
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          docker push "$IMAGE_NAME:${{ steps.vars.outputs.sha_tag }}"
+          docker push "$IMAGE_NAME:latest"
