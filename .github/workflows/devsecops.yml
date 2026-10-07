@@ -23,7 +23,7 @@ jobs:
           output_formats: "json,sarif"
           fail_on: high
       - name: SonarQube/SonarCloud scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarcloud-github-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
