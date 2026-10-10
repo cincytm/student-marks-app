@@ -43,6 +43,9 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+      - name: Remove Trivy envs file
+        if: always()
+        run: rm -f trivy_envs.txt
       - name: Docker Hub login
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
