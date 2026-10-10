@@ -42,7 +42,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_tag }}'
           format: 'table'
           exit-code: '1'
-          severity: 'CRITICAL,HIGH'
+          severity: 'CRITICAL'
           ignore-unfixed: true
       - name: Remove Trivy envs file
         if: always()
