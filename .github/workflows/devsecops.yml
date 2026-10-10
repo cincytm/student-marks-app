@@ -23,7 +23,13 @@ jobs:
           output_formats: "json,sarif"
           fail_on: high
       - name: SonarQube/SonarCloud scan
+<<<<<<< HEAD
         uses: SonarSource/sonarcloud-github-action@v3
+=======
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: -Dsonar.organization=cincytm
+>>>>>>> d653e8f (sonar property file updated with projectkey)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
