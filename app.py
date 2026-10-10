@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
 st.set_page_config(page_title="Student Marks", page_icon="📚")
-st.title("Traica Solutions - Student Marks")
+st.title("Cincy Solutions - Student Marks")
 
 
 @st.cache_resource
